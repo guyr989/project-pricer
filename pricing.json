@@ -1,0 +1,88 @@
+{
+  "config_version": "1.0.0",
+  "currencies": {
+    "default": "ILS",
+    "supported": ["ILS", "USD", "EUR"],
+    "fx_rates": {
+      "USD_to_ILS": 3.75,
+      "EUR_to_ILS": 4.05
+    }
+  },
+  "vat": {
+    "israel": 0.18,
+    "eu": 0.20,
+    "us": 0.0,
+    "none": 0.0
+  },
+  "base_rates": {
+    "developer_hourly_rate_ils": 350,
+    "developer_hourly_rate_usd": 95,
+    "overhead_percentage": 0.15,
+    "profit_margin": 0.25,
+    "risk_buffers": {
+      "low": 0.05,
+      "medium": 0.15,
+      "high": 0.25,
+      "very_high": 0.40
+    }
+  },
+  "additive_costs": {
+    "copywriting_per_page_hours": 3,
+    "image_sourcing_per_image_hours": 0.5,
+    "video_embed_hours": 1,
+    "video_self_hosted_per_video_hours": 3,
+    "domain_purchase_ils": 180,
+    "domain_purchase_usd": 15,
+    "hosting_setup_hours": 4,
+    "email_hosting_per_account_monthly_ils": 30,
+    "email_hosting_per_account_monthly_usd": 8,
+    "staging_environment_hours": 3,
+    "backup_setup_hours": 2,
+    "ssl_setup_hours": 1,
+    "translation_per_language_multiplier": 0.35,
+    "subcontractor_markup": 0.20,
+    "training_per_session_hours": 2
+  },
+  "multipliers": {
+    "rush_surcharges": {
+      "no_rush": 0.0,
+      "within_3_months": 0.0,
+      "within_6_weeks": 0.25,
+      "within_3_weeks": 0.50,
+      "asap": 0.75
+    },
+    "tech_familiarity": {
+      "expert": 0.0,
+      "proficient": 0.0,
+      "learning": 0.50,
+      "new": 0.75
+    },
+    "client_difficulty": {
+      "clear_and_organized": 0.0,
+      "normal": 0.10,
+      "vague": 0.25,
+      "red_flag": 0.50
+    },
+    "ip_transfer_premium": 0.15,
+    "portfolio_discount": 0.10,
+    "long_term_client_discount": 0.10
+  },
+  "maintenance_retainer": {
+    "basic_monthly_ils": 800,
+    "basic_monthly_usd": 200,
+    "standard_monthly_ils": 1800,
+    "standard_monthly_usd": 450,
+    "comprehensive_monthly_ils": 3500,
+    "comprehensive_monthly_usd": 900
+  },
+  "hosting_estimates": {
+    "shared_monthly_ils": 60,
+    "shared_monthly_usd": 15,
+    "vps_monthly_ils": 200,
+    "vps_monthly_usd": 50,
+    "managed_monthly_ils": 500,
+    "managed_monthly_usd": 130,
+    "serverless_monthly_ils": 0,
+    "serverless_monthly_usd": 0
+  }
+}

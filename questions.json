@@ -1,0 +1,746 @@
+{
+  "config_version": "1.0.0",
+  "questions": [
+    {
+      "id": "client_name",
+      "category": "scope",
+      "label": "Client name (for the quote)",
+      "label_he": "שם הלקוח (לצורך הצעת המחיר)",
+      "type": "text",
+      "condition": null,
+      "pricing_impact": "none",
+      "weight": "low",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "project_type",
+      "category": "scope",
+      "label": "What type of website does the client need?",
+      "label_he": "מה סוג האתר שהלקוח צריך?",
+      "type": "choice",
+      "options": [
+        { "value": "landing_page",   "label": "Landing page (single page)",          "label_he": "עמוד נחיתה (עמוד בודד)",          "base_hours": 15 },
+        { "value": "brochure",       "label": "Brochure / Portfolio (3-8 pages)",    "label_he": "אתר תדמית / פורטפוליו (3-8 עמודים)", "base_hours": 40 },
+        { "value": "business",       "label": "Business site (8-20 pages)",          "label_he": "אתר עסקי (8-20 עמודים)",          "base_hours": 70 },
+        { "value": "ecommerce",      "label": "E-commerce store",                    "label_he": "חנות מקוונת",                      "base_hours": 140 },
+        { "value": "blog_magazine",  "label": "Blog / News / Magazine",              "label_he": "בלוג / חדשות / מגזין",             "base_hours": 55 },
+        { "value": "web_app",        "label": "Web application (custom logic)",      "label_he": "אפליקציית ווב (לוגיקה מותאמת)",    "base_hours": 250 },
+        { "value": "directory",      "label": "Directory / Listing site",            "label_he": "אתר ספריית עסקים / רישומים",       "base_hours": 110 }
+      ],
+      "condition": null,
+      "pricing_impact": "sets foundational base hours",
+      "weight": "critical",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "is_redesign",
+      "category": "scope",
+      "label": "Is this a redesign of an existing site?",
+      "label_he": "האם מדובר בעיצוב מחדש של אתר קיים?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "+20% for audit and migration work",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "page_count",
+      "category": "scope",
+      "label": "Approximately how many pages will the site have?",
+      "label_he": "כמה עמודים בקירוב יהיו באתר?",
+      "type": "number",
+      "condition": null,
+      "pricing_impact": "adds 1 hour per additional page beyond base",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "deadline",
+      "category": "scope",
+      "label": "What is the project deadline / urgency?",
+      "label_he": "מה הדד-ליין / דחיפות הפרויקט?",
+      "type": "choice",
+      "options": [
+        { "value": "no_rush",        "label": "No rush (flexible timeline)",   "label_he": "אין דחיפות (לוז גמיש)",       "rush_key": "no_rush" },
+        { "value": "within_3_months","label": "Within 3 months",               "label_he": "תוך 3 חודשים",               "rush_key": "within_3_months" },
+        { "value": "within_6_weeks", "label": "Within 6 weeks (+25%)",         "label_he": "תוך 6 שבועות (+25%)",        "rush_key": "within_6_weeks" },
+        { "value": "within_3_weeks", "label": "Within 3 weeks (+50%)",         "label_he": "תוך 3 שבועות (+50%)",        "rush_key": "within_3_weeks" },
+        { "value": "asap",           "label": "ASAP / Yesterday (+75%)",       "label_he": "בהקדם האפשרי (+75%)",        "rush_key": "asap" }
+      ],
+      "condition": null,
+      "pricing_impact": "rush surcharge on total",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "design_source",
+      "category": "design",
+      "label": "Who will handle the design?",
+      "label_he": "מי יטפל בעיצוב?",
+      "type": "choice",
+      "options": [
+        { "value": "developer_designs", "label": "Developer designs from scratch",       "label_he": "המפתח מעצב מאפס",              "extra_hours": 25 },
+        { "value": "premium_template",  "label": "Use a premium template / theme",      "label_he": "שימוש בתבנית פרימיום",          "extra_hours": 5  },
+        { "value": "client_mockups",    "label": "Client provides full mockups (Figma)","label_he": "הלקוח מספק מוקאפים מלאים",    "extra_hours": 0  },
+        { "value": "brand_guidelines",  "label": "Client provides brand guidelines only","label_he": "הלקוח מספק הנחיות מיתוג בלבד", "extra_hours": 12 }
+      ],
+      "condition": null,
+      "pricing_impact": "adds design hours",
+      "weight": "critical",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "has_brand_identity",
+      "category": "design",
+      "label": "Does the client have an existing brand identity (logo, colors, fonts)?",
+      "label_he": "האם ללקוח יש זהות מותגית קיימת (לוגו, צבעים, פונטים)?",
+      "type": "choice",
+      "options": [
+        { "value": "full_brand",    "label": "Full brand kit",         "label_he": "ערכת מיתוג מלאה",    "extra_hours": 0  },
+        { "value": "logo_only",     "label": "Logo only",              "label_he": "לוגו בלבד",           "extra_hours": 5  },
+        { "value": "no_brand",      "label": "No brand — needs branding too", "label_he": "אין מיתוג — צריך גם מיתוג", "extra_hours": 20 }
+      ],
+      "condition": null,
+      "pricing_impact": "adds branding hours if needed",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "animations_level",
+      "category": "design",
+      "label": "What level of animations / interactions are needed?",
+      "label_he": "איזה רמת אנימציות / אינטראקציות נדרשת?",
+      "type": "choice",
+      "options": [
+        { "value": "none",     "label": "None / minimal",                     "label_he": "ללא / מינימלי",                 "extra_hours": 0  },
+        { "value": "basic",    "label": "Basic (hover effects, fade-ins)",     "label_he": "בסיסי (אפקטי ריחוף, דהייה)",   "extra_hours": 5  },
+        { "value": "moderate", "label": "Moderate (scroll animations)",        "label_he": "בינוני (אנימציות גלילה)",       "extra_hours": 15 },
+        { "value": "heavy",    "label": "Heavy (complex motion design)",       "label_he": "מורכב (עיצוב תנועה מלא)",      "extra_hours": 35 }
+      ],
+      "condition": null,
+      "pricing_impact": "adds animation hours",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "revision_rounds",
+      "category": "design",
+      "label": "How many rounds of revisions are included?",
+      "label_he": "כמה סיבובי תיקונים כלולים?",
+      "type": "choice",
+      "options": [
+        { "value": "1", "label": "1 round",           "label_he": "סיבוב אחד",       "extra_hours": 0  },
+        { "value": "2", "label": "2 rounds (standard)","label_he": "2 סיבובים (סטנדרט)", "extra_hours": 6  },
+        { "value": "3", "label": "3 rounds",          "label_he": "3 סיבובים",        "extra_hours": 12 },
+        { "value": "unlimited", "label": "Unlimited", "label_he": "ללא הגבלה",         "extra_hours": 25 }
+      ],
+      "condition": null,
+      "pricing_impact": "adds revision hours",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "content_writer",
+      "category": "content",
+      "label": "Who will write the website copy (text content)?",
+      "label_he": "מי יכתוב את התוכן הטקסטואלי של האתר?",
+      "type": "choice",
+      "options": [
+        { "value": "client",    "label": "Client writes all copy",          "label_he": "הלקוח כותב את כל התוכן",    "copywriting": false },
+        { "value": "developer", "label": "Developer writes copy",           "label_he": "המפתח כותב את התוכן",        "copywriting": true  },
+        { "value": "mixed",     "label": "Client drafts, developer refines","label_he": "הלקוח טיוטה, המפתח מחדד",   "copywriting": "partial" }
+      ],
+      "condition": null,
+      "pricing_impact": "adds copywriting_per_page_hours × page_count",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "content_ready",
+      "category": "content",
+      "label": "Is the written content already prepared and ready to hand over?",
+      "label_he": "האם התוכן הכתוב מוכן ומוכן למסירה?",
+      "type": "choice",
+      "options": [
+        { "value": "all_ready",     "label": "All content ready",         "label_he": "כל התוכן מוכן",       "extra_hours": 0 },
+        { "value": "partial",       "label": "Partially ready (<50%)",    "label_he": "חלקי (<50%)",          "extra_hours": 5 },
+        { "value": "not_started",   "label": "Not started",               "label_he": "לא התחיל",             "extra_hours": 0 }
+      ],
+      "condition": null,
+      "pricing_impact": "adds holding/coordination hours",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "image_source",
+      "category": "content",
+      "label": "Where will website images come from?",
+      "label_he": "מאיפה יגיעו תמונות האתר?",
+      "type": "choice",
+      "options": [
+        { "value": "client_provides", "label": "Client provides all images",            "label_he": "הלקוח מספק את כל התמונות",       "image_sourcing": false },
+        { "value": "stock_paid",      "label": "Stock photography (paid license)",      "label_he": "תמונות סטוק (רישיון בתשלום)",    "image_sourcing": true  },
+        { "value": "stock_free",      "label": "Free stock (Unsplash/Pexels)",          "label_he": "סטוק חינמי (Unsplash/Pexels)",   "image_sourcing": true  },
+        { "value": "ai_generated",    "label": "AI-generated images",                   "label_he": "תמונות AI",                       "image_sourcing": true  }
+      ],
+      "condition": null,
+      "pricing_impact": "adds image_sourcing_per_image_hours if developer sources",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "image_count",
+      "category": "content",
+      "label": "Approximately how many unique images are needed?",
+      "label_he": "כמה תמונות ייחודיות נדרשות בקירוב?",
+      "type": "number",
+      "condition": null,
+      "pricing_impact": "multiplied by image_sourcing_per_image_hours",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "has_video",
+      "category": "content",
+      "label": "Will the site include video content?",
+      "label_he": "האם האתר יכלול תוכן וידאו?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "adds video integration hours",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "video_count",
+      "category": "content",
+      "label": "How many videos?",
+      "label_he": "כמה סרטונים?",
+      "type": "number",
+      "condition": { "question_id": "has_video", "value": true },
+      "pricing_impact": "multiplied by video hours",
+      "weight": "medium",
+      "internal_only": false,
+      "required": false
+    },
+    {
+      "id": "video_hosting",
+      "category": "content",
+      "label": "Where will the videos be hosted?",
+      "label_he": "איפה יתארחו הסרטונים?",
+      "type": "choice",
+      "options": [
+        { "value": "youtube_vimeo", "label": "YouTube / Vimeo embed (existing)",     "label_he": "הטמעה מ-YouTube / Vimeo",     "hours_per_video": 1 },
+        { "value": "self_hosted",   "label": "Self-hosted on server",                "label_he": "אחסון עצמי בשרת",             "hours_per_video": 3 },
+        { "value": "cdn",           "label": "CDN-hosted (Cloudflare/Bunny.net)",    "label_he": "CDN (Cloudflare/Bunny.net)",   "hours_per_video": 2 }
+      ],
+      "condition": { "question_id": "has_video", "value": true },
+      "pricing_impact": "hours_per_video × video_count",
+      "weight": "medium",
+      "internal_only": false,
+      "required": false
+    },
+    {
+      "id": "multilingual",
+      "category": "content",
+      "label": "Does the site need to support multiple languages?",
+      "label_he": "האם האתר צריך לתמוך במספר שפות?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "+35% per additional language",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "language_count",
+      "category": "content",
+      "label": "How many languages (including the primary language)?",
+      "label_he": "כמה שפות (כולל השפה הראשית)?",
+      "type": "number",
+      "condition": { "question_id": "multilingual", "value": true },
+      "pricing_impact": "(language_count - 1) × 35% multiplier",
+      "weight": "high",
+      "internal_only": false,
+      "required": false
+    },
+    {
+      "id": "cms_required",
+      "category": "technical",
+      "label": "Does the client need a CMS to update content themselves?",
+      "label_he": "האם הלקוח צריך CMS לעדכון תוכן עצמאי?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "adds CMS setup hours",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "cms_type",
+      "category": "technical",
+      "label": "Which CMS is preferred?",
+      "label_he": "איזה CMS מועדף?",
+      "type": "choice",
+      "options": [
+        { "value": "wordpress",   "label": "WordPress",          "label_he": "WordPress",   "extra_hours": 12 },
+        { "value": "webflow",     "label": "Webflow",            "label_he": "Webflow",     "extra_hours": 10 },
+        { "value": "sanity",      "label": "Sanity.io / Contentful (headless)", "label_he": "Sanity.io / Contentful (headless)", "extra_hours": 20 },
+        { "value": "ghost",       "label": "Ghost",              "label_he": "Ghost",       "extra_hours": 10 },
+        { "value": "custom_cms",  "label": "Custom-built CMS",   "label_he": "CMS מותאם אישית", "extra_hours": 80 },
+        { "value": "client_choice","label": "Not sure — client decides", "label_he": "לא בטוח — הלקוח יחליט", "extra_hours": 15 }
+      ],
+      "condition": { "question_id": "cms_required", "value": true },
+      "pricing_impact": "adds CMS-specific hours",
+      "weight": "critical",
+      "internal_only": false,
+      "required": false
+    },
+    {
+      "id": "database_required",
+      "category": "technical",
+      "label": "Does the project require a custom database (beyond a CMS)?",
+      "label_he": "האם הפרויקט דורש מסד נתונים מותאם אישית?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "adds 30 hours for DB design + API",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "ecommerce_required",
+      "category": "technical",
+      "label": "Does the site need e-commerce / online store functionality?",
+      "label_he": "האם האתר צריך פונקציונליות של חנות מקוונת?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "adds 60+ hours",
+      "weight": "critical",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "ecommerce_platform",
+      "category": "technical",
+      "label": "Which e-commerce platform?",
+      "label_he": "איזה פלטפורמת מסחר אלקטרוני?",
+      "type": "choice",
+      "options": [
+        { "value": "woocommerce",   "label": "WooCommerce (WordPress)",    "label_he": "WooCommerce (WordPress)", "extra_hours": 35 },
+        { "value": "shopify_theme", "label": "Shopify (custom theme)",     "label_he": "Shopify (תבנית מותאמת)", "extra_hours": 30 },
+        { "value": "shopify_headless","label":"Shopify (headless)",        "label_he": "Shopify (headless)",      "extra_hours": 80 },
+        { "value": "custom",        "label": "Custom-built e-commerce",    "label_he": "חנות מותאמת אישית",       "extra_hours": 200 }
+      ],
+      "condition": { "question_id": "ecommerce_required", "value": true },
+      "pricing_impact": "adds e-commerce platform hours",
+      "weight": "critical",
+      "internal_only": false,
+      "required": false
+    },
+    {
+      "id": "user_accounts",
+      "category": "technical",
+      "label": "Does the site need user registration / login accounts?",
+      "label_he": "האם האתר צריך הרשמה / כניסת משתמשים?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "adds 20 hours for auth system",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "seo_level",
+      "category": "technical",
+      "label": "What level of SEO optimization is needed?",
+      "label_he": "איזה רמת אופטימיזציה SEO נדרשת?",
+      "type": "choice",
+      "options": [
+        { "value": "none",          "label": "None",                             "label_he": "ללא",                          "extra_hours": 0  },
+        { "value": "basic",         "label": "Basic on-page SEO setup",          "label_he": "הגדרת SEO בסיסי",              "extra_hours": 5  },
+        { "value": "technical",     "label": "Technical SEO audit + implementation","label_he": "ביקורת SEO טכני + יישום",  "extra_hours": 15 },
+        { "value": "full_strategy", "label": "Full SEO strategy + content plan", "label_he": "אסטרטגיית SEO מלאה",          "extra_hours": 35 }
+      ],
+      "condition": null,
+      "pricing_impact": "adds SEO hours",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "third_party_integrations",
+      "category": "technical",
+      "label": "Which third-party integrations are needed? (select all that apply)",
+      "label_he": "אילו אינטגרציות צד שלישי נדרשות?",
+      "type": "multi_choice",
+      "options": [
+        { "value": "crm",         "label": "CRM (HubSpot / Salesforce)",       "label_he": "CRM (HubSpot / Salesforce)",     "hours": 8  },
+        { "value": "email_mktg",  "label": "Email marketing (Mailchimp etc.)", "label_he": "שיווק במייל (Mailchimp וכד')",   "hours": 5  },
+        { "value": "analytics",   "label": "Analytics (GA4 / Plausible)",      "label_he": "אנליטיקס (GA4 / Plausible)",    "hours": 2  },
+        { "value": "live_chat",   "label": "Live chat (Intercom / Crisp)",     "label_he": "צ'אט חי (Intercom / Crisp)",    "hours": 4  },
+        { "value": "booking",     "label": "Booking / scheduling system",      "label_he": "מערכת הזמנות / תיאום",          "hours": 15 },
+        { "value": "maps",        "label": "Maps (Google Maps)",               "label_he": "מפות (Google Maps)",             "hours": 3  },
+        { "value": "payment_gw",  "label": "Payment gateway integration",      "label_he": "שילוב שער תשלומים",              "hours": 10 },
+        { "value": "none",        "label": "None",                             "label_he": "ללא",                            "hours": 0  }
+      ],
+      "condition": null,
+      "pricing_impact": "sum of hours for selected integrations",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "domain_status",
+      "category": "hosting",
+      "label": "Does the client already own a domain name?",
+      "label_he": "האם ללקוח כבר יש שם דומיין?",
+      "type": "choice",
+      "options": [
+        { "value": "owns_domain",    "label": "Yes, already owns domain",  "label_he": "כן, כבר מחזיק בדומיין",  "domain_cost": false },
+        { "value": "needs_domain",   "label": "No, needs to purchase one", "label_he": "לא, צריך לרכוש",          "domain_cost": true  },
+        { "value": "need_help",      "label": "Needs help choosing domain","label_he": "צריך עזרה בבחירת דומיין", "domain_cost": true  }
+      ],
+      "condition": null,
+      "pricing_impact": "adds domain purchase cost if needed",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "hosting_responsibility",
+      "category": "hosting",
+      "label": "Who will manage hosting?",
+      "label_he": "מי ינהל את האחסון?",
+      "type": "choice",
+      "options": [
+        { "value": "client_manages",   "label": "Client manages their own hosting",          "label_he": "הלקוח מנהל את האחסון עצמאית",      "hosting_type": "client" },
+        { "value": "developer_sets_up","label": "Developer sets up, client pays ongoing",   "label_he": "המפתח מגדיר, הלקוח משלם שוטף",    "hosting_type": "setup" },
+        { "value": "developer_manages","label": "Developer sets up AND manages (retainer)", "label_he": "המפתח מגדיר וגם מנהל (ריטיינר)",   "hosting_type": "managed" },
+        { "value": "serverless",       "label": "Serverless / static (Vercel / Netlify)",   "label_he": "Serverless / סטטי (Vercel/Netlify)", "hosting_type": "serverless" }
+      ],
+      "condition": null,
+      "pricing_impact": "adds hosting setup hours + optional monthly fee",
+      "weight": "high",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "expected_traffic",
+      "category": "hosting",
+      "label": "What is the expected monthly traffic?",
+      "label_he": "מהו התנועה החודשית הצפויה?",
+      "type": "choice",
+      "options": [
+        { "value": "low",       "label": "Low (< 1,000 visits/month)",        "label_he": "נמוך (< 1,000 ביקורים/חודש)",    "hosting_tier": "shared" },
+        { "value": "medium",    "label": "Medium (1,000 – 10,000/month)",     "label_he": "בינוני (1,000 – 10,000/חודש)",   "hosting_tier": "shared" },
+        { "value": "high",      "label": "High (10,000 – 100,000/month)",     "label_he": "גבוה (10,000 – 100,000/חודש)",   "hosting_tier": "vps" },
+        { "value": "very_high", "label": "Very high (100,000+/month)",        "label_he": "גבוה מאוד (100,000+/חודש)",       "hosting_tier": "managed" }
+      ],
+      "condition": null,
+      "pricing_impact": "determines recommended hosting tier + cost",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "email_hosting",
+      "category": "hosting",
+      "label": "Does the client need professional email hosting?",
+      "label_he": "האם הלקוח צריך אחסון מייל מקצועי?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "adds per-account monthly cost",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "email_account_count",
+      "category": "hosting",
+      "label": "How many email accounts are needed?",
+      "label_he": "כמה חשבונות מייל נדרשים?",
+      "type": "number",
+      "condition": { "question_id": "email_hosting", "value": true },
+      "pricing_impact": "× monthly email cost",
+      "weight": "medium",
+      "internal_only": false,
+      "required": false
+    },
+    {
+      "id": "backup_needed",
+      "category": "hosting",
+      "label": "Is automated website backup required?",
+      "label_he": "האם נדרש גיבוי אוטומטי של האתר?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "adds backup setup hours",
+      "weight": "low",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "staging_needed",
+      "category": "hosting",
+      "label": "Is a staging / test environment needed?",
+      "label_he": "האם נדרסת סביבת staging / בדיקות?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "adds staging setup hours",
+      "weight": "low",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "currency",
+      "category": "business",
+      "label": "What currency should the quote be in?",
+      "label_he": "באיזו מטבע תהיה הצעת המחיר?",
+      "type": "choice",
+      "options": [
+        { "value": "ILS", "label": "ILS — Israeli Shekel (₪)", "label_he": "שקל ישראלי (₪)" },
+        { "value": "USD", "label": "USD — US Dollar ($)",       "label_he": "דולר אמריקאי ($)" },
+        { "value": "EUR", "label": "EUR — Euro (€)",            "label_he": "יורו (€)" }
+      ],
+      "condition": null,
+      "pricing_impact": "sets output currency",
+      "weight": "critical",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "vat_applicable",
+      "category": "business",
+      "label": "Is VAT applicable to this project?",
+      "label_he": "האם חל מע\"מ על הפרויקט הזה?",
+      "type": "choice",
+      "options": [
+        { "value": "israel",  "label": "Yes — Israeli VAT 18% (מע\"מ)",   "label_he": "כן — מע\"מ 18% ישראלי",    "vat_key": "israel" },
+        { "value": "eu",      "label": "Yes — EU VAT (~20%)",             "label_he": "כן — מע\"מ אירופאי (~20%)", "vat_key": "eu"     },
+        { "value": "none",    "label": "No VAT (export / exempt)",        "label_he": "ללא מע\"מ (ייצוא / פטור)",  "vat_key": "none"   }
+      ],
+      "condition": null,
+      "pricing_impact": "adds VAT to final total",
+      "weight": "critical",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "payment_schedule",
+      "category": "business",
+      "label": "What is the preferred payment schedule?",
+      "label_he": "מה לוח התשלומים המועדף?",
+      "type": "choice",
+      "options": [
+        { "value": "50_50",     "label": "50% upfront / 50% on delivery (standard)", "label_he": "50% מראש / 50% במסירה (סטנדרט)" },
+        { "value": "33_33_33",  "label": "33% start / 33% midpoint / 33% delivery",  "label_he": "33% התחלה / 33% אמצע / 33% מסירה" },
+        { "value": "100_upfront","label": "100% upfront",                             "label_he": "100% מראש" },
+        { "value": "milestones", "label": "Milestone-based payments",                 "label_he": "תשלומים לפי אבני דרך" }
+      ],
+      "condition": null,
+      "pricing_impact": "shown on quote",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "maintenance_plan",
+      "category": "business",
+      "label": "Does the client want an ongoing maintenance / support plan?",
+      "label_he": "האם הלקוח רוצה תוכנית תחזוקה / תמיכה שוטפת?",
+      "type": "choice",
+      "options": [
+        { "value": "none",          "label": "No ongoing support",             "label_he": "ללא תמיכה שוטפת",           "retainer_key": null },
+        { "value": "basic",         "label": "Basic retainer (security only)", "label_he": "ריטיינר בסיסי (אבטחה בלבד)", "retainer_key": "basic" },
+        { "value": "standard",      "label": "Standard retainer (updates + minor content)", "label_he": "ריטיינר סטנדרט (עדכונים + תוכן)", "retainer_key": "standard" },
+        { "value": "comprehensive", "label": "Comprehensive retainer (full support)", "label_he": "ריטיינר מקיף (תמיכה מלאה)", "retainer_key": "comprehensive" }
+      ],
+      "condition": null,
+      "pricing_impact": "adds monthly recurring fee to quote",
+      "weight": "medium",
+      "internal_only": false,
+      "required": true
+    },
+    {
+      "id": "training_needed",
+      "category": "business",
+      "label": "Does the client need training on how to use the CMS?",
+      "label_he": "האם הלקוח צריך הדרכה על שימוש ב-CMS?",
+      "type": "choice",
+      "options": [
+        { "value": "none",     "label": "No training",                  "label_he": "ללא הדרכה",              "training_sessions": 0 },
+        { "value": "one",      "label": "1-hour walkthrough session",   "label_he": "מפגש הדרכה של שעה אחת", "training_sessions": 1 },
+        { "value": "two",      "label": "2 sessions + documentation",   "label_he": "2 מפגשים + תיעוד",      "training_sessions": 2 },
+        { "value": "ongoing",  "label": "Ongoing training sessions",    "label_he": "מפגשי הדרכה שוטפים",    "training_sessions": 4 }
+      ],
+      "condition": { "question_id": "cms_required", "value": true },
+      "pricing_impact": "adds training_sessions × training_per_session_hours",
+      "weight": "low",
+      "internal_only": false,
+      "required": false
+    },
+    {
+      "id": "additional_notes",
+      "category": "business",
+      "label": "Any additional requirements or notes from the client?",
+      "label_he": "האם יש דרישות נוספות או הערות מהלקוח?",
+      "type": "text",
+      "condition": null,
+      "pricing_impact": "shown as notes on quote",
+      "weight": "low",
+      "internal_only": false,
+      "required": false
+    },
+    {
+      "id": "dev_hourly_rate",
+      "category": "internal",
+      "label": "[INTERNAL] Your hourly rate for this project",
+      "label_he": "[פנימי] התעריף השעתי שלך לפרויקט זה",
+      "type": "number",
+      "condition": null,
+      "pricing_impact": "base of all cost calculations",
+      "weight": "critical",
+      "internal_only": true,
+      "required": true
+    },
+    {
+      "id": "tech_familiarity",
+      "category": "internal",
+      "label": "[INTERNAL] How familiar are you with the required tech stack?",
+      "label_he": "[פנימי] כמה אתה מכיר את ה-stack הנדרש?",
+      "type": "choice",
+      "options": [
+        { "value": "expert",    "label": "Expert (built 10+ similar projects)",     "label_he": "מומחה (בניתי 10+ פרויקטים דומים)", "familiarity_key": "expert" },
+        { "value": "proficient","label": "Proficient (built 3-5 similar)",          "label_he": "מיומן (בניתי 3-5 דומים)",           "familiarity_key": "proficient" },
+        { "value": "learning",  "label": "Learning on the job (+50% time estimate)","label_he": "לומד תוך כדי עבודה (+50%)",         "familiarity_key": "learning" },
+        { "value": "new",       "label": "Completely new to this stack (+75%)",     "label_he": "חדש לחלוטין (+75%)",                "familiarity_key": "new" }
+      ],
+      "condition": null,
+      "pricing_impact": "multiplier on all hours",
+      "weight": "critical",
+      "internal_only": true,
+      "required": true
+    },
+    {
+      "id": "client_communication",
+      "category": "internal",
+      "label": "[INTERNAL] How would you rate the client's communication clarity?",
+      "label_he": "[פנימי] איך היית מדרג את בהירות התקשורת של הלקוח?",
+      "type": "choice",
+      "options": [
+        { "value": "clear_and_organized","label": "Very clear and organized",                "label_he": "ברור ומאורגן מאוד",      "difficulty_key": "clear_and_organized" },
+        { "value": "normal",             "label": "Normal (some clarification needed)",      "label_he": "נורמלי (צריך הבהרות)",   "difficulty_key": "normal" },
+        { "value": "vague",              "label": "Vague (heavy discovery work needed +25%)","label_he": "מעורפל (+25%)",           "difficulty_key": "vague" },
+        { "value": "red_flag",           "label": "Red flag — unclear or demanding (+50%)",  "label_he": "דגל אדום — בעייתי (+50%)","difficulty_key": "red_flag" }
+      ],
+      "condition": null,
+      "pricing_impact": "overhead multiplier",
+      "weight": "high",
+      "internal_only": true,
+      "required": true
+    },
+    {
+      "id": "project_risk",
+      "category": "internal",
+      "label": "[INTERNAL] Overall project risk level",
+      "label_he": "[פנימי] רמת הסיכון הכוללת של הפרויקט",
+      "type": "choice",
+      "options": [
+        { "value": "low",       "label": "Low — clear spec, familiar tech, reliable client (+5%)", "label_he": "נמוך (+5%)",       "risk_key": "low" },
+        { "value": "medium",    "label": "Medium — some unknowns (+15%)",                          "label_he": "בינוני (+15%)",    "risk_key": "medium" },
+        { "value": "high",      "label": "High — vague spec or new tech (+25%)",                   "label_he": "גבוה (+25%)",      "risk_key": "high" },
+        { "value": "very_high", "label": "Very high — multiple unknowns (+40%)",                   "label_he": "גבוה מאוד (+40%)", "risk_key": "very_high" }
+      ],
+      "condition": null,
+      "pricing_impact": "risk buffer on subtotal",
+      "weight": "critical",
+      "internal_only": true,
+      "required": true
+    },
+    {
+      "id": "overhead_percentage",
+      "category": "internal",
+      "label": "[INTERNAL] Your overhead percentage (admin, tools, etc.)",
+      "label_he": "[פנימי] אחוז ה-overhead שלך (ניהול, כלים, וכד')",
+      "type": "number",
+      "condition": null,
+      "pricing_impact": "applied after risk buffer",
+      "weight": "high",
+      "internal_only": true,
+      "required": true
+    },
+    {
+      "id": "profit_margin",
+      "category": "internal",
+      "label": "[INTERNAL] Your desired profit margin percentage",
+      "label_he": "[פנימי] אחוז רווח רצוי",
+      "type": "number",
+      "condition": null,
+      "pricing_impact": "applied after overhead",
+      "weight": "high",
+      "internal_only": true,
+      "required": true
+    },
+    {
+      "id": "subcontractors_needed",
+      "category": "internal",
+      "label": "[INTERNAL] Will you hire subcontractors or specialists?",
+      "label_he": "[פנימי] האם תשכור קבלני משנה?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "+20% markup on estimated subcontractor hours",
+      "weight": "medium",
+      "internal_only": true,
+      "required": true
+    },
+    {
+      "id": "ip_transfer",
+      "category": "internal",
+      "label": "[INTERNAL] Will you transfer full IP ownership to the client?",
+      "label_he": "[פנימי] האם תעביר בעלות IP מלאה ללקוח?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "+15% IP transfer premium",
+      "weight": "high",
+      "internal_only": true,
+      "required": true
+    },
+    {
+      "id": "long_term_client",
+      "category": "internal",
+      "label": "[INTERNAL] Is this likely to be a long-term client with recurring work?",
+      "label_he": "[פנימי] האם זה עשוי להיות לקוח ארוך טווח עם עבודה חוזרת?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "-10% long-term client discount",
+      "weight": "medium",
+      "internal_only": true,
+      "required": true
+    },
+    {
+      "id": "portfolio_value",
+      "category": "internal",
+      "label": "[INTERNAL] Would this be a strong portfolio piece worth discounting?",
+      "label_he": "[פנימי] האם זה יהיה פרויקט פורטפוליו חזק שמצדיק הנחה?",
+      "type": "yes_no",
+      "condition": null,
+      "pricing_impact": "-10% portfolio discount",
+      "weight": "low",
+      "internal_only": true,
+      "required": true
+    }
+  ]
+}

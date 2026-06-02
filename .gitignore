@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# App runtime dirs (generated files — not committed)
+logs/
+sessions/
+outputs/
+
+# Stats (personal data — keep local, don't commit)
+stats.json
+
+# Demo / test artefacts
+demo.py
+quote_demo_*.pdf
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
