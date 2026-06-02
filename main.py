@@ -22,6 +22,7 @@ from rich import box
 from rich.text import Text
 
 import calculator
+import client_message
 import pdf_export
 import stats as stats_module
 
@@ -215,6 +216,11 @@ def ask_question(q: dict, answers: dict) -> object:
 _IDK_SENTINEL = "__idk__"
 
 
+def _idk_entry(q: dict) -> dict:
+    """Extract the fields needed for client message generation from a question."""
+    return {k: q.get(k) for k in ("id", "label", "label_he", "weight", "category", "internal_only")}
+
+
 def ask_with_idk(q: dict, answers: dict) -> tuple[object, bool]:
     """
     Wraps ask_question() adding "I'm not sure" to yes_no, choice, and
@@ -270,10 +276,13 @@ def _session_path() -> Path:
     return SESSIONS_DIR / f"session_{ts}.json"
 
 
-def save_session(answers: dict) -> Path:
+def save_session(answers: dict, idk_questions: dict | None = None) -> Path:
+    data = dict(answers)
+    if idk_questions:
+        data["_idk_questions"] = idk_questions
     path = _session_path()
     try:
-        path.write_text(json.dumps(answers, indent=2, ensure_ascii=False), encoding="utf-8")
+        path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
         logger.info("Session saved to %s", path)
     except OSError as exc:
         logger.error("Could not save session: %s", exc)
@@ -284,14 +293,17 @@ def list_sessions() -> list[Path]:
     return sorted(SESSIONS_DIR.glob("session_*.json"), reverse=True)
 
 
-def load_session(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
+def load_session(path: Path) -> tuple[dict, dict]:
+    """Load session data. Returns (answers, idk_questions)."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    idk_questions = data.pop("_idk_questions", {})
+    return data, idk_questions
 
 
-def offer_resume() -> dict | None:
+def offer_resume() -> tuple[dict, dict] | None:
     """
     If saved sessions exist, ask user whether to resume the most recent one.
-    Returns pre-loaded answers dict or None (start fresh).
+    Returns (answers, idk_questions) or None (start fresh).
     """
     sessions = list_sessions()
     if not sessions:
@@ -322,10 +334,10 @@ def offer_resume() -> dict | None:
     ).execute()
 
     if choice == "resume":
-        answers = load_session(recent)
+        answers, saved_idk = load_session(recent)
         logger.info("Resumed session from %s", recent)
         console.print(f"[green]Session resumed.[/green] {len(answers)} answers pre-loaded.\n")
-        return answers
+        return answers, saved_idk
     if choice == "discard":
         try:
             recent.unlink()
@@ -337,7 +349,7 @@ def offer_resume() -> dict | None:
 # Interrupt handler (Ctrl+C mid-questionnaire)
 # ---------------------------------------------------------------------------
 
-def handle_interrupt(answers: dict) -> dict | None:
+def handle_interrupt(answers: dict, idk_questions: dict | None = None) -> dict | None:
     """
     Called on KeyboardInterrupt during questionnaire.
     Returns the (possibly updated) answers dict if user chooses Resume,
@@ -361,7 +373,7 @@ def handle_interrupt(answers: dict) -> dict | None:
         return answers
 
     if choice == "save":
-        path = save_session(answers)
+        path = save_session(answers, idk_questions)
         console.print(Panel(
             f"[green]Progress saved.[/green]\n[dim]{path}[/dim]\n\n"
             "Run [bold]python3 main.py[/bold] again to resume.",
@@ -402,13 +414,13 @@ def run_questionnaire(questions: list[dict], prefill: dict | None = None) -> tup
             try:
                 answer, is_idk = ask_with_idk(q, answers)
                 if is_idk:
-                    idk_questions[q["id"]] = q["label"]
+                    idk_questions[q["id"]] = _idk_entry(q)
                 if answer is not None:
                     answers[q["id"]] = answer
                     logger.debug("Answered [%s] = %r (idk=%s)", q["id"], answer, is_idk)
                 break
             except KeyboardInterrupt:
-                result = handle_interrupt(answers)
+                result = handle_interrupt(answers, idk_questions)
                 if result is not None:
                     answers = result
                 else:
@@ -438,7 +450,7 @@ def run_questionnaire(questions: list[dict], prefill: dict | None = None) -> tup
                     logger.debug("Answered [%s] = %r", q["id"], answer)
                 break
             except KeyboardInterrupt:
-                result = handle_interrupt(answers)
+                result = handle_interrupt(answers, idk_questions)
                 if result is not None:
                     answers = result
                 else:
@@ -460,6 +472,7 @@ def run_quick_questionnaire(questions: list[dict]) -> tuple[dict, dict]:
     """
     idk_questions: dict = {}
     answers: dict = {}
+    q_by_id = {q["id"]: q for q in questions}
 
     console.print(Panel(
         "[bold cyan]QUICK QUOTE[/bold cyan] — Let's get the basics\n"
@@ -476,7 +489,7 @@ def run_quick_questionnaire(questions: list[dict]) -> tuple[dict, dict]:
             answers["client_name"] = name
             break
         except KeyboardInterrupt:
-            res = handle_interrupt(answers)
+            res = handle_interrupt(answers, idk_questions)
             if res is not None:
                 answers = res
     console.print()
@@ -495,12 +508,16 @@ def run_quick_questionnaire(questions: list[dict]) -> tuple[dict, dict]:
                 ],
             ).execute()
             if project_type == _IDK_SENTINEL:
-                idk_questions["project_type"] = "What kind of website does the client need?"
+                idk_questions["project_type"] = _idk_entry(q_by_id.get("project_type", {
+                    "id": "project_type", "label": "What kind of website does the client need?",
+                    "label_he": "איזה סוג אתר הלקוח צריך?", "weight": "critical",
+                    "category": "scope", "internal_only": False,
+                }))
                 project_type = "brochure"
             answers["project_type"] = project_type
             break
         except KeyboardInterrupt:
-            res = handle_interrupt(answers)
+            res = handle_interrupt(answers, idk_questions)
             if res is not None:
                 answers = res
     console.print()
@@ -518,12 +535,16 @@ def run_quick_questionnaire(questions: list[dict]) -> tuple[dict, dict]:
                 ],
             ).execute()
             if brand == _IDK_SENTINEL:
-                idk_questions["has_brand_identity"] = "Does the client have a logo / brand kit?"
+                idk_questions["has_brand_identity"] = _idk_entry(q_by_id.get("has_brand_identity", {
+                    "id": "has_brand_identity", "label": "Does the client have a logo / brand kit?",
+                    "label_he": "האם ללקוח יש לוגו / ערכת מיתוג?", "weight": "high",
+                    "category": "design", "internal_only": False,
+                }))
                 brand = QUICK_DEFAULTS.get("has_brand_identity", "logo_only")
             answers["has_brand_identity"] = brand
             break
         except KeyboardInterrupt:
-            res = handle_interrupt(answers)
+            res = handle_interrupt(answers, idk_questions)
             if res is not None:
                 answers = res
     console.print()
@@ -541,12 +562,16 @@ def run_quick_questionnaire(questions: list[dict]) -> tuple[dict, dict]:
                 ],
             ).execute()
             if writer == _IDK_SENTINEL:
-                idk_questions["content_writer"] = "Who will write the website text content?"
+                idk_questions["content_writer"] = _idk_entry(q_by_id.get("content_writer", {
+                    "id": "content_writer", "label": "Who will write the website text content?",
+                    "label_he": "מי יכתוב את תוכן הטקסט לאתר?", "weight": "high",
+                    "category": "content", "internal_only": False,
+                }))
                 writer = QUICK_DEFAULTS.get("content_writer", "client")
             answers["content_writer"] = writer
             break
         except KeyboardInterrupt:
-            res = handle_interrupt(answers)
+            res = handle_interrupt(answers, idk_questions)
             if res is not None:
                 answers = res
     console.print()
@@ -566,12 +591,16 @@ def run_quick_questionnaire(questions: list[dict]) -> tuple[dict, dict]:
                 ],
             ).execute()
             if deadline == _IDK_SENTINEL:
-                idk_questions["deadline"] = "What is the project urgency / deadline?"
+                idk_questions["deadline"] = _idk_entry(q_by_id.get("deadline", {
+                    "id": "deadline", "label": "What is the project urgency / deadline?",
+                    "label_he": "מה הדחיפות / דדליין של הפרויקט?", "weight": "high",
+                    "category": "scope", "internal_only": False,
+                }))
                 deadline = QUICK_DEFAULTS.get("deadline", "no_rush")
             answers["deadline"] = deadline
             break
         except KeyboardInterrupt:
-            res = handle_interrupt(answers)
+            res = handle_interrupt(answers, idk_questions)
             if res is not None:
                 answers = res
     console.print()
@@ -590,7 +619,11 @@ def run_quick_questionnaire(questions: list[dict]) -> tuple[dict, dict]:
                 ],
             ).execute()
             if _IDK_SENTINEL in features:
-                idk_questions["extras"] = "Any special features needed? (blog, bilingual, booking, etc.)"
+                idk_questions["extras"] = _idk_entry(q_by_id.get("extras", {
+                    "id": "extras", "label": "Any special features needed? (blog, bilingual, booking, etc.)",
+                    "label_he": "האם צריך פיצ'רים מיוחדים? (בלוג, דו-לשוני, הזמנות וכו')",
+                    "weight": "medium", "category": "scope", "internal_only": False,
+                }))
             else:
                 if "blog" in features:
                     answers["blog_section"] = True
@@ -601,7 +634,7 @@ def run_quick_questionnaire(questions: list[dict]) -> tuple[dict, dict]:
                     answers["booking_system"] = True
             break
         except KeyboardInterrupt:
-            res = handle_interrupt(answers)
+            res = handle_interrupt(answers, idk_questions)
             if res is not None:
                 answers = res
     console.print()
@@ -869,34 +902,36 @@ def edit_line_items(result: calculator.PricingResult) -> calculator.PricingResul
 # Client questions document
 # ---------------------------------------------------------------------------
 
-def generate_client_questions_doc(idk_questions: dict, client_name: str, output_dir: Path) -> Path | None:
+def generate_client_questions_doc(
+    idk_questions: dict,
+    client_name: str,
+    output_dir: Path,
+    language: str = "en",
+    tone: str = "formal",
+    fmt: str = "email",
+    sender_name: str = "",
+) -> Path | None:
     """
-    Write a plain-text list of open questions to clarify with the client.
+    Generate a styled client message from IDK questions and save it.
     Returns the output path, or None if idk_questions is empty.
     """
     if not idk_questions:
         return None
 
-    date_str = datetime.now().strftime("%d %b %Y")
-    lines = [
-        f"Questions to clarify with: {client_name or 'client'}",
-        f"Generated: {date_str}",
-        "",
-        "The following details were left open during the quote session.",
-        "Please go over these with the client before finalising the quote.",
-        "",
-    ]
-    for i, (_qid, label) in enumerate(idk_questions.items(), 1):
-        lines.append(f" {i}. {label}")
-    lines.append("")
-
-    path = output_dir / "client_questions.txt"
+    options = client_message.MessageOptions(
+        language=language,
+        tone=tone,
+        format=fmt,
+        client_name=client_name or "client",
+        sender_name=sender_name,
+    )
+    path = output_dir / f"client_questions_{language}_{tone}_{fmt}.txt"
     try:
-        path.write_text("\n".join(lines), encoding="utf-8")
+        client_message.generate_client_message(idk_questions, options, path)
         logger.info("Client questions doc saved: %s", path)
         return path
     except OSError as exc:
-        logger.warning("Could not write client_questions.txt: %s", exc)
+        logger.warning("Could not write client questions doc: %s", exc)
         return None
 
 
@@ -918,10 +953,14 @@ def main() -> None:
     logger.info("=== New session started ===")
 
     # Check for saved session
-    prefill = offer_resume()
+    resumed = offer_resume()
+    if resumed is not None:
+        prefill, idk_questions = resumed
+    else:
+        prefill = None
+        idk_questions = {}
 
     questions = load_questions()
-    idk_questions: dict = {}
 
     # Determine mode (quick vs full) — only ask on fresh sessions
     quick_mode: bool = prefill.get("_quick_mode", False) if prefill else False
@@ -956,7 +995,7 @@ def main() -> None:
         try:
             answers = revise_answers(answers, questions)
         except KeyboardInterrupt:
-            handle_interrupt(answers)
+            handle_interrupt(answers, idk_questions)
 
     # Calculate
     try:
@@ -1014,12 +1053,49 @@ def main() -> None:
             logger.exception("HTML fallback also failed")
             console.print(f"[red]HTML fallback also failed:[/red] {html_exc}")
 
-    # Save client questions doc if any IDKs were recorded
+    # Generate client questions message if any IDKs were recorded
     if idk_questions:
-        doc_path = generate_client_questions_doc(idk_questions, result.client_name or "client", out_dir)
+        try:
+            msg_lang = inquirer.select(
+                message="Client questions message — language?",
+                choices=[
+                    Choice(value="en", name="English"),
+                    Choice(value="he", name="Hebrew / עברית"),
+                ],
+                default=lang,
+            ).execute()
+            msg_tone = inquirer.select(
+                message="Message tone?",
+                choices=[
+                    Choice(value="formal", name="Formal"),
+                    Choice(value="casual", name="Casual"),
+                ],
+            ).execute()
+            msg_fmt = inquirer.select(
+                message="Message format?",
+                choices=[
+                    Choice(value="email", name="Email (with greeting & sign-off)"),
+                    Choice(value="sms",   name="SMS (short & concise)"),
+                ],
+            ).execute()
+        except KeyboardInterrupt:
+            msg_lang, msg_tone, msg_fmt = "en", "formal", "email"
+
+        doc_path = generate_client_questions_doc(
+            idk_questions, result.client_name or "client", out_dir,
+            language=msg_lang, tone=msg_tone, fmt=msg_fmt,
+        )
         if doc_path:
+            msg_text = doc_path.read_text(encoding="utf-8")
+            console.print()
             console.print(Panel(
-                f"[bold yellow]Open questions saved:[/bold yellow]\n[white]{doc_path}[/white]",
+                msg_text,
+                title="[bold yellow]Client Message[/bold yellow]",
+                border_style="yellow",
+                padding=(1, 2),
+            ))
+            console.print(Panel(
+                f"[bold yellow]Saved to:[/bold yellow] [white]{doc_path}[/white]",
                 border_style="yellow",
                 padding=(0, 2),
             ))

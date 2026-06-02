@@ -113,33 +113,40 @@ class TestQuickPageCount:
 # generate_client_questions_doc()
 # ---------------------------------------------------------------------------
 
+def _idk(id_: str, label: str, label_he: str = "", weight: str = "medium") -> dict:
+    return {
+        "id": id_, "label": label, "label_he": label_he or label,
+        "weight": weight, "category": "scope", "internal_only": False,
+    }
+
+
 class TestGenerateClientQuestionsDoc:
     def test_returns_none_for_empty_idk(self, tmp_path):
         result = generate_client_questions_doc({}, "Test", tmp_path)
         assert result is None
 
     def test_creates_file(self, tmp_path):
-        idk = {"project_type": "What kind of website?"}
+        idk = {"project_type": _idk("project_type", "What kind of website?")}
         path = generate_client_questions_doc(idk, "Roni", tmp_path)
         assert path is not None
         assert path.exists()
 
-    def test_file_named_client_questions(self, tmp_path):
-        idk = {"q1": "Some question"}
+    def test_file_named_with_format(self, tmp_path):
+        idk = {"q1": _idk("q1", "Some question")}
         path = generate_client_questions_doc(idk, "Test", tmp_path)
-        assert path.name == "client_questions.txt"
+        assert path.name == "client_questions_en_formal_email.txt"
 
     def test_client_name_in_file(self, tmp_path):
-        idk = {"q1": "Question A"}
+        idk = {"q1": _idk("q1", "Question A")}
         path = generate_client_questions_doc(idk, "Roni Bakery", tmp_path)
         content = path.read_text(encoding="utf-8")
         assert "Roni Bakery" in content
 
     def test_all_questions_listed(self, tmp_path):
         idk = {
-            "project_type": "What kind of website?",
-            "deadline": "What is the deadline?",
-            "has_video": "Will there be video content?",
+            "project_type": _idk("project_type", "What kind of website?"),
+            "deadline": _idk("deadline", "What is the deadline?"),
+            "has_video": _idk("has_video", "Will there be video content?"),
         }
         path = generate_client_questions_doc(idk, "Test", tmp_path)
         content = path.read_text(encoding="utf-8")
@@ -148,15 +155,30 @@ class TestGenerateClientQuestionsDoc:
         assert "Will there be video content?" in content
 
     def test_numbered_list(self, tmp_path):
-        idk = {"a": "Q1", "b": "Q2", "c": "Q3"}
-        path = generate_client_questions_doc(idk, "X", tmp_path)
+        idk = {
+            "a": _idk("a", "Q1"),
+            "b": _idk("b", "Q2"),
+            "c": _idk("c", "Q3"),
+        }
+        path = generate_client_questions_doc(idk, "X", tmp_path, fmt="email")
         content = path.read_text(encoding="utf-8")
-        assert " 1." in content
-        assert " 2." in content
-        assert " 3." in content
+        assert "1." in content
+        assert "2." in content
+        assert "3." in content
 
     def test_empty_client_name_fallback(self, tmp_path):
-        idk = {"q": "Some question"}
+        idk = {"q": _idk("q", "Some question")}
         path = generate_client_questions_doc(idk, "", tmp_path)
         content = path.read_text(encoding="utf-8")
         assert "client" in content
+
+    def test_hebrew_output(self, tmp_path):
+        idk = {"q": _idk("q", "English?", "עברית?")}
+        path = generate_client_questions_doc(idk, "רוני", tmp_path, language="he")
+        content = path.read_text(encoding="utf-8")
+        assert "עברית?" in content
+
+    def test_casual_sms_format(self, tmp_path):
+        idk = {"q": _idk("q", "Some question")}
+        path = generate_client_questions_doc(idk, "Roni", tmp_path, tone="casual", fmt="sms")
+        assert path.name == "client_questions_en_casual_sms.txt"

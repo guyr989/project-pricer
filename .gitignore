@@ -16,14 +16,25 @@ env/
 # App runtime dirs (generated files — not committed)
 logs/
 sessions/
-outputs/
+outputs/*
+!outputs/.gitkeep
 
 # Stats (personal data — keep local, don't commit)
 stats.json
 
+# One-time setup scripts (not part of the app)
+git_setup.py
+
 # Demo / test artefacts
 demo.py
 quote_demo_*.pdf
+*.pdf
+
+# Pytest
+.pytest_cache/
+
+# Claude Code settings (personal)
+.claude/
 
 # OS
 .DS_Store
